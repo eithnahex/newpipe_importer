@@ -120,11 +120,12 @@ def main() -> None:
         close_db()
 
     if args.backup:
-        new_zip = Path("NewData.zip")
-    else:
-        new_zip = Path(args.newpipezip)
+        os.rename(
+            args.newpipezip,
+            f'backup_{datetime.now().strftime("%d.%m.%Y %H.%M.%S")}__{args.newpipezip}'
+        )
 
-    rezip(new_zip, *unzipped)
+    rezip(args.newpipezip, *unzipped)
     cleanup(*unzipped)
 
 
