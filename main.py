@@ -50,6 +50,10 @@ def default_newpipe_file(args: argparse.Namespace):
 UnzippedPaths = namedtuple('UnzippedPaths', ['db', 'settings'])
 
 
+class NothingToAddException(Exception):
+    ...
+
+
 def unzip(path: str) -> UnzippedPaths:
     path = Path(path)
     with zipfile.ZipFile(path, mode='r') as zip:
@@ -85,6 +89,7 @@ def cleanup(*file_paths: str):
 def add_all_from_playlist(playlist_file: str, playlist_name: str):
     with open(playlist_file, 'r', encoding='utf-8') as f:
         tracks_urls = f.readlines()
+    failed = 0
     for url in tracks_urls:
         try:
             add_stream(
@@ -94,7 +99,10 @@ def add_all_from_playlist(playlist_file: str, playlist_name: str):
             print("OK. Track added: {}".format(url))
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed: streams.service_id, streams.url" in str(e):
+                failed += 1
                 print("ERR. Track with url {} already exists".format(url))
+    if failed == len(tracks_urls):
+        raise NothingToAddException("WARN. Nothing to add.")
 
 
 def main() -> None:
@@ -112,10 +120,16 @@ def main() -> None:
 
     try:
         add_all_from_playlist(args.playlist_file, args.playlist_name)
-    except Exception as e:
-        print("ERR. {}".format(e))
+    except NothingToAddException as e:
+        print(e)
+        close_db()
         cleanup(*unzipped)
         return
+    except Exception as e:
+        print("ERR.")
+        close_db()
+        cleanup(*unzipped)
+        raise e
     finally:
         close_db()
 
