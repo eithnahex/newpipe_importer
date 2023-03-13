@@ -6,8 +6,8 @@ from pathlib import Path
 import sqlite3
 import zipfile
 
-from db import add_stream, close_db, get_or_create_playlist, init_db
-from yt.yt import get_stream_info
+from newpipe_importer.db import add_stream, close_db, get_or_create_playlist, init_db
+from newpipe_importer.yt.yt import get_stream_info
 
 
 parser = argparse.ArgumentParser()
