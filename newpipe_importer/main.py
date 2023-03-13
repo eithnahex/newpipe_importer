@@ -156,7 +156,7 @@ def main() -> None:
     rezip(args.newpipezip, *unzipped)
     cleanup(*unzipped)
 
-    print("DONE")
+    print('DONE')
     print('newpipezip:', args.newpipezip)
     print('playlist_name:', args.playlist_name)
 
