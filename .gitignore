@@ -1,6 +1,7 @@
 .vscode
 NewPipeData*
 playlist.txt
+*.db
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,pydev,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pydev,pycharm+all
