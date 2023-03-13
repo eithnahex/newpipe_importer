@@ -44,7 +44,7 @@ def default_newpipe_file(args: argparse.Namespace):
     for f in listdir('.'):
         if isfile(f) and 'newpipe' in f.lower() and 'zip' in f.lower():
             path = Path('.', f)
-            args.newpipezip = path.resolve()
+            args.newpipezip = str(path)
 
 
 UnzippedPaths = namedtuple('UnzippedPaths', ['db', 'settings'])
