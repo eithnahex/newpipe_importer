@@ -115,6 +115,10 @@ def main() -> None:
     print('playlist_name:', args.playlist_name)
     print('backup:', args.backup)
 
+    if args.newpipezip is None:
+        print("ERR. No newpipe .zip file")
+        return
+
     unzipped = unzip(args.newpipezip)
     init_db(unzipped.db)
 
