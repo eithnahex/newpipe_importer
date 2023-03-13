@@ -110,7 +110,7 @@ def add_all_from_playlist(playlist_file: str, playlist_name: str):
         except Exception as e:
             failed += 1
             print("ERR. Video info download error. {}".format(e))
-            
+
     if failed == len(tracks_urls):
         raise NothingToAddException("WARN. Nothing to add.")
 
@@ -155,6 +155,10 @@ def main() -> None:
 
     rezip(args.newpipezip, *unzipped)
     cleanup(*unzipped)
+
+    print("DONE")
+    print('newpipezip:', args.newpipezip)
+    print('playlist_name:', args.playlist_name)
 
 
 if __name__ == "__main__":
