@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlite3
 from typing import Any, Generator
 
-print('path:', Path('.').resolve())
+
 __db: sqlite3.Connection = None
 
 
