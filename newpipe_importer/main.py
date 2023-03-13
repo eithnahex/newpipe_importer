@@ -6,6 +6,8 @@ from pathlib import Path
 import sqlite3
 import zipfile
 
+import yt_dlp
+
 from newpipe_importer.db import add_stream, close_db, get_or_create_playlist, init_db
 from newpipe_importer.yt.yt import get_stream_info
 
@@ -97,10 +99,18 @@ def add_all_from_playlist(playlist_file: str, playlist_name: str):
                 get_or_create_playlist(playlist_name),
             )
             print("OK. Track added: {}".format(url))
+        except yt_dlp.utils.DownloadError as e:
+            if "content from SME" in str(e):
+                failed += 1
+                print("ERR. Track with url {} unavailable due to SME (video blocked)")
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed: streams.service_id, streams.url" in str(e):
                 failed += 1
                 print("ERR. Track with url {} already exists".format(url))
+        except Exception as e:
+            failed += 1
+            print("ERR. Video info download error. {}".format(e))
+            
     if failed == len(tracks_urls):
         raise NothingToAddException("WARN. Nothing to add.")
 
