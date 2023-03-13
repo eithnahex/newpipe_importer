@@ -102,7 +102,7 @@ def add_all_from_playlist(playlist_file: str, playlist_name: str):
         except yt_dlp.utils.DownloadError as e:
             if "content from SME" in str(e):
                 failed += 1
-                print("ERR. Track with url {} unavailable due to SME (video blocked)")
+                print("ERR. Track with url {} unavailable due to SME (video blocked)".format(url))
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed: streams.service_id, streams.url" in str(e):
                 failed += 1
