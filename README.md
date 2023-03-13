@@ -7,18 +7,18 @@
 # Installation
 
 ```bash
-pip install yt-dlp
+pip install git+https://github.com/eithnahex/newpipe_importer
 ```
 
 
 # Usage
 
 ```bash
-python main.py playlist.txt
+newpipe_importer playlist.txt
 ```
 
 ```bash
-python main.py playlist.txt --playlist_name NewPlaylist
+newpipe_importer playlist.txt --playlist_name NewPlaylist
 ```
 
 - `playlist.txt` should contain lines with links to YouTube tracks
@@ -28,10 +28,12 @@ python main.py playlist.txt --playlist_name NewPlaylist
 <br><br>
 
 ```bash
-python main.py --help
+newpipe_importer --help
 ```
 ```
-usage: main.py [-h] [--newpipezip NEWPIPEZIP] [--playlist_name PLAYLIST_NAME] [--backup {True,False}] playlist_file
+usage: newpipe_importer.exe [-h] [--newpipezip NEWPIPEZIP] [--playlist_name PLAYLIST_NAME]   
+                            [--backup {True,False}]
+                            playlist_file
 
 positional arguments:
   playlist_file         Path to playlist txt file
