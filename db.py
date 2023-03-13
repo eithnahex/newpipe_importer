@@ -31,14 +31,6 @@ def get_db() -> Generator[sqlite3.Cursor, None, None]:
         cursor.close()
 
 
-def sql_format(val: Any) -> Any:
-    match val:
-        case str():
-            return "'{}'".format(val)
-        case _:
-            return str(val)
-
-
 @dataclass
 class StreamInfo:
     url: str
@@ -54,7 +46,7 @@ class StreamInfo:
         return iter([getattr(self, f.name) for f in dataclasses.fields(StreamInfo)])
 
     def get_values(self) -> list:
-        return [sql_format(getattr(self, f.name)) for f in dataclasses.fields(StreamInfo)]
+        return [getattr(self, f.name) for f in dataclasses.fields(StreamInfo)]
 
 
 def __get_last_index_in_playlist(playlist_id: int) -> int:
@@ -63,24 +55,20 @@ def __get_last_index_in_playlist(playlist_id: int) -> int:
     return 0, if playlist with that id doesn't exist
     """
     with get_db() as db:
-        sql = "SELECT MAX(join_index) FROM playlist_stream_join WHERE playlist_id={}".format(
-            sql_format(playlist_id)
-        )
-        res = db.execute(sql).fetchone()[0]
+        sql = "SELECT MAX(join_index) FROM playlist_stream_join WHERE playlist_id=?"
+        res = db.execute(sql, (playlist_id,)).fetchone()[0]
         return res if res else 0
 
 
 def get_or_create_playlist(name: str) -> int:
     with get_db() as db:
-        sql = "SELECT uid FROM playlists WHERE name = {};".format(
-            sql_format(name))
-        playlist_id = db.execute(sql).fetchone()
+        sql = "SELECT uid FROM playlists WHERE name=?;"
+        playlist_id = db.execute(sql, (name,)).fetchone()
         if playlist_id:
             return playlist_id[0]
 
-        sql_create = "INSERT INTO playlists (name) VALUES ({});".format(
-            sql_format(name))
-        db.execute(sql_create)
+        sql_create = "INSERT INTO playlists (name) VALUES (?);"
+        db.execute(sql_create, (name,))
         db.connection.commit()
 
         playlist_id = db.lastrowid
@@ -92,26 +80,27 @@ def add_stream(info: StreamInfo, playlist_id: int, stream_type: str = 'VIDEO_STR
         columns = ["stream_type", "service_id"]
         columns.extend([f.name for f in dataclasses.fields(StreamInfo)])
 
-        values = [sql_format(stream_type), sql_format(service_id)]
+        values = [stream_type, service_id]
         values.extend(info.get_values())
 
         sql = "INSERT INTO streams ({}) VALUES ({});".format(
             ', '.join(columns),
-            ', '.join(values)
+            ', '.join(["?" for _ in values])
         )
 
-        db.execute(sql)
+        db.execute(sql, values)
         stream_id = db.lastrowid
 
         columns2 = ["playlist_id", "stream_id", "join_index"]
-        values = [sql_format(playlist_id), sql_format(stream_id), sql_format(
-            __get_last_index_in_playlist(playlist_id) + 1)]
+        values = [
+            playlist_id, stream_id,
+            __get_last_index_in_playlist(playlist_id) + 1
+        ]
         sql2 = "INSERT INTO playlist_stream_join ({}) VALUES ({});".format(
             ', '.join(columns2),
-            ', '.join(values),
+            ', '.join(["?" for _ in values])
         )
-
-        db.execute(sql2)
+        db.execute(sql2, values)
 
         db.connection.commit()
     pass
