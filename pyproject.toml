@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+version = "1.0.0"
+name = "newpipe_importer"
+authors = [
+    {name = "eithnahex"}
+]
+license = {file = "LICENSE"}
+description = "Newpipe import helper"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["newpipe", "tool", "cli"]
+dependencies = [
+    "yt-dlp",
+]
+
+[project.scripts]
+newpipe_importer = "newpipe_importer.main:main"
+
