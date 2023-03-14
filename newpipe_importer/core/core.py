@@ -7,7 +7,7 @@ import zipfile
 
 import yt_dlp
 
-from newpipe_importer.db import add_stream, get_or_create_playlist
+from newpipe_importer.core.db import add_stream, get_or_create_playlist
 from newpipe_importer.yt.yt import get_stream_info
 
 

@@ -1,9 +1,9 @@
 import argparse
 from datetime import datetime
 import os
-from newpipe_importer.db import close_db, init_db
 
-from newpipe_importer.core import NothingToAddException, add_all_from_playlist, cleanup, default_newpipe_file, rezip, unzip
+from newpipe_importer.core.core import NothingToAddException, add_all_from_playlist, cleanup, default_newpipe_file, frame, rezip, unzip
+from newpipe_importer.core.db import close_db, init_db
 
 
 parser = argparse.ArgumentParser()

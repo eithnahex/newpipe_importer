@@ -1,9 +1,8 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 import dataclasses
-from pathlib import Path
 import sqlite3
-from typing import Any, Generator
+from typing import Generator
 
 
 __db: sqlite3.Connection = None

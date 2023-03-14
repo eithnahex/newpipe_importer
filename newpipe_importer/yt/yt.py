@@ -1,5 +1,5 @@
 import yt_dlp
-from newpipe_importer.db import StreamInfo
+from newpipe_importer.core.db import StreamInfo
 
 
 def _build_video_url(info: dict) -> dict:
