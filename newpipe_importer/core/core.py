@@ -1,5 +1,6 @@
 import argparse
 from collections import namedtuple
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import sqlite3
@@ -86,3 +87,12 @@ def add_all_from_playlist(playlist_file: str, playlist_name: str):
 
     if failed == len(tracks_urls):
         raise NothingToAddException("WARN. Nothing to add.")
+
+
+@contextmanager
+def frame():
+    try:
+        print('---------------------------------------------')
+        yield
+    finally:
+        print('---------------------------------------------')

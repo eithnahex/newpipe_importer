@@ -38,10 +38,11 @@ def main() -> None:
     if args.newpipezip is None:
         default_newpipe_file(args)
 
-    print('playlist_file:', args.playlist_file)
-    print('newpipezip:', args.newpipezip)
-    print('playlist_name:', args.playlist_name)
-    print('backup:', args.backup)
+    with frame():
+        print('playlist_file:', args.playlist_file)
+        print('newpipezip:', args.newpipezip)
+        print('playlist_name:', args.playlist_name)
+        print('backup:', args.backup)
 
     if args.newpipezip is None:
         print("ERR. No newpipe .zip file")
@@ -53,7 +54,8 @@ def main() -> None:
     try:
         add_all_from_playlist(args.playlist_file, args.playlist_name)
     except NothingToAddException as e:
-        print(e)
+        with frame():
+            print(e)
         close_db()
         cleanup(*unzipped)
         return
@@ -74,9 +76,10 @@ def main() -> None:
     rezip(args.newpipezip, *unzipped)
     cleanup(*unzipped)
 
-    print('DONE')
-    print('newpipezip:', args.newpipezip)
-    print('playlist_name:', args.playlist_name)
+    with frame():
+        print('DONE')
+        print('newpipezip:', args.newpipezip)
+        print('playlist_name:', args.playlist_name)
 
 
 if __name__ == "__main__":
