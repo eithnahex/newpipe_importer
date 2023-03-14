@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 from newpipe_importer.db import close_db, init_db
 
-from newpipe_importer.newpipe_importer import NothingToAddException, add_all_from_playlist, cleanup, default_newpipe_file, rezip, unzip
+from newpipe_importer.core import NothingToAddException, add_all_from_playlist, cleanup, default_newpipe_file, rezip, unzip
 
 
 parser = argparse.ArgumentParser()
