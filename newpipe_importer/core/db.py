@@ -5,7 +5,7 @@ import sqlite3
 from typing import Generator
 
 
-__db: sqlite3.Connection = None
+__db: sqlite3.Connection | None = None
 
 
 def init_db(path: str) -> None:
@@ -22,9 +22,10 @@ def close_db() -> None:
 @contextmanager
 def get_db() -> Generator[sqlite3.Cursor, None, None]:
     global __db
-    cursor: sqlite3.Cursor = None
+    if __db is None:
+        raise Exception('Init the database first! Use init_db()')
     try:
-        cursor = __db.cursor()
+        cursor: sqlite3.Cursor = __db.cursor()
         yield cursor
     finally:
         cursor.close()
