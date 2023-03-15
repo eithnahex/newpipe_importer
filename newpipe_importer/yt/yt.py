@@ -8,7 +8,7 @@ def _build_video_url(info: dict) -> dict:
     return info
 
 
-def get_info(url: str, ydl_opts: dict = None) -> dict:
+def get_info(url: str, ydl_opts: dict | None = None) -> dict:
     # ℹ️ See help(yt_dlp.YoutubeDL) for a list of available options and public functions
     ydl_opts = ydl_opts if ydl_opts else {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -16,7 +16,7 @@ def get_info(url: str, ydl_opts: dict = None) -> dict:
         return _build_video_url(info)
 
 
-def get_stream_info(url: str, ydl_opts: dict = None) -> StreamInfo:
+def get_stream_info(url: str, ydl_opts: dict | None = None) -> StreamInfo:
     info = get_info(url, ydl_opts)
     return StreamInfo(
         url=info['url'],

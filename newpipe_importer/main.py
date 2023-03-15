@@ -1,9 +1,9 @@
 import argparse
+from contextlib import contextmanager
 from datetime import datetime
-import os
+from pathlib import Path
 
-from newpipe_importer.core.core import NothingToAddException, add_all_from_playlist, cleanup, default_newpipe_file, frame, rezip, unzip
-from newpipe_importer.core.db import close_db, init_db
+from newpipe_importer.core.core import CreatePlaylistDatabaseException, add_all_from_playlist
 
 
 parser = argparse.ArgumentParser()
@@ -33,10 +33,36 @@ parser.add_argument(
 )
 
 
+@contextmanager
+def frame():
+    try:
+        print('---------------------------------------------')
+        yield
+    finally:
+        print('---------------------------------------------')
+
+
+def default_newpipe_file(args: argparse.Namespace):
+    from os import listdir
+    from os.path import isfile
+
+    for f in listdir('.'):
+        if isfile(f) and 'newpipe' in f.lower() and 'zip' in f.lower():
+            path = Path('.', f)
+            args.newpipezip = str(path)
+
+
 def main() -> None:
     args = parser.parse_args()
     if args.newpipezip is None:
         default_newpipe_file(args)
+
+
+    if args.newpipezip is None:
+        with frame():
+            print("Error. No newpipe .zip file")
+        return
+
 
     with frame():
         print('playlist_file:', args.playlist_file)
@@ -44,42 +70,30 @@ def main() -> None:
         print('playlist_name:', args.playlist_name)
         print('backup:', args.backup)
 
-    if args.newpipezip is None:
-        print("ERR. No newpipe .zip file")
-        return
-
-    unzipped = unzip(args.newpipezip)
-    init_db(unzipped.db)
 
     try:
-        add_all_from_playlist(args.playlist_file, args.playlist_name)
-    except NothingToAddException as e:
+        results = add_all_from_playlist(args.newpipezip, args.playlist_file, args.playlist_name, args.backup)
+    except CreatePlaylistDatabaseException as e:
         with frame():
             print(e)
-        close_db()
-        cleanup(*unzipped)
-        return
+            print(f"Error. Failed to create playlist with name: {args.playlist_name}.")
+            return
     except Exception as e:
-        print("ERR.")
-        close_db()
-        cleanup(*unzipped)
-        raise e
-    finally:
-        close_db()
-
-    if args.backup:
-        os.rename(
-            args.newpipezip,
-            f'backup_{datetime.now().strftime("%d.%m.%Y %H.%M.%S")}__{args.newpipezip}'
-        )
-
-    rezip(args.newpipezip, *unzipped)
-    cleanup(*unzipped)
-
+        with frame():
+            print("Unknown error.")
+            print(e)
+        return
+    
     with frame():
         print('DONE')
         print('newpipezip:', args.newpipezip)
         print('playlist_name:', args.playlist_name)
+
+        for result in results:
+            print(result.msg)
+
+        if not any((True for x in results if x.status == 'ok')):
+            print(f"Warning. Nothing to add.")
 
 
 if __name__ == "__main__":
