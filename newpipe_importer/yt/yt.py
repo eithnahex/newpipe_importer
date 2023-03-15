@@ -10,7 +10,11 @@ def _build_video_url(info: dict) -> dict:
 
 def get_info(url: str, ydl_opts: dict | None = None) -> dict:
     # ℹ️ See help(yt_dlp.YoutubeDL) for a list of available options and public functions
-    ydl_opts = ydl_opts if ydl_opts else {}
+    ydl_opts = ydl_opts if ydl_opts else {
+        # 'noplaylist': True,
+        # 'quiet': True,
+    }
+    
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return _build_video_url(info)

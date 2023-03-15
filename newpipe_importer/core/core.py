@@ -77,9 +77,16 @@ def _fetch_track_urls_from_file(playlist_file: str) -> list[str]:
         return tracks_urls
 
 
-def _validate_track_url(track: str) -> tuple[bool, str]:
-    # TODO: impl
-    return True, f"{track} url is ok"
+def _validate_and_fix_track_url(url: str) -> tuple[str, bool, str]:
+    if 'watch' not in url and 'playlist' in url:
+        return url, False, f"[{url}] is a playlist. Playlist is not supported."
+    if 'watch' in url:
+        if 'index' in url:
+            url = url.rsplit('&index')[0]
+        if 'list' in url:
+            url = url.rsplit('&list')[0]
+
+    return url, True, f"[{url}] url is ok"
 
 
 def _add_tracks_from_playlist(playlist_file: str, playlist_name: str) -> list[ResultTrack]:
@@ -93,7 +100,7 @@ def _add_tracks_from_playlist(playlist_file: str, playlist_name: str) -> list[Re
 
     added, failed = [], []
     for url in tracks_urls:
-        ok, msg = _validate_track_url(url)
+        url, ok, msg = _validate_and_fix_track_url(url)
         if not ok:
             failed.append(ResultTrack(
                 f'Error. Bad track url: [{url}]. Cause: {msg}', 'error'))
