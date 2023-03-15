@@ -1,9 +1,11 @@
 import argparse
 from collections import namedtuple
 from contextlib import contextmanager
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import sqlite3
+from typing import Literal
 import zipfile
 
 import yt_dlp
@@ -61,7 +63,65 @@ def cleanup(*file_paths: str):
         os.remove(f)
 
 
+@dataclass
+class ResultTrack:
+    msg: str
+    status: Literal['ok', 'error']
+    pass
+
+
+def _fetch_track_urls_from_file(playlist_file: str) -> list[str]:
+    with open(playlist_file, 'r', encoding='utf-8') as f:
+        tracks_urls = f.readlines()
+        return tracks_urls
+
+
+def _validate_track_url(track: str) -> tuple[bool, str]:
+    # TODO: impl
+    return True, f"{track} url is ok"
+
+
+def _add_tracks_from_playlist(playlist_file: str, playlist_name: str) -> list[ResultTrack]:
+    tracks_urls = _fetch_track_urls_from_file(playlist_file)
+
+    added, failed = [], []
+    for url in tracks_urls:
+        ok, msg = _validate_track_url(url)
+        if not ok:
+            failed.append(ResultTrack(
+                f'Error. Bad track url: {url}. Cause: {msg}', 'error'))
+            continue
+
+        try:
+            info = get_stream_info(url)
+            playlist_id = get_or_create_playlist(playlist_name)
+            add_stream(info, playlist_id)
+
+            added.append(ResultTrack(
+                f'Track added: {info.title}, {info.url}', 'ok'))
+
+        except Exception as e:
+            if isinstance(e, yt_dlp.utils.DownloadError) and "content from SME" in str(e):
+                failed.append(
+                    ResultTrack(f'Error. Track with url {url} unavailable due to SME (video blocked)', 'error')
+                )
+                continue
+            if isinstance(e, sqlite3.IntegrityError) and "UNIQUE constraint failed: streams.service_id, streams.url" in str(e):
+                failed.append(
+                    ResultTrack(f'Error. Track with url {url} already exists', 'error')
+                )
+                continue
+            failed.append(
+                ResultTrack(f'Error. Failed to add track with {url}. Cause: {e}', 'error')
+            )
+
+    return [*added, *failed]
+
+
 def add_all_from_playlist(playlist_file: str, playlist_name: str):
+    results = _add_tracks_from_playlist(playlist_file, playlist_name)
+
+    raise NotImplementedError()
     with open(playlist_file, 'r', encoding='utf-8') as f:
         tracks_urls = f.readlines()
     failed = 0
