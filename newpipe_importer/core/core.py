@@ -106,9 +106,8 @@ def _add_tracks_from_playlist(playlist_file: str, playlist_name: str) -> list[Re
                 f'Error. Bad track url: [{url}]. Cause: {msg}', 'error'))
             continue
 
-        info = get_stream_info(url)
-
         try:
+            info = get_stream_info(url)
             add_stream(info, playlist_id)
 
             added.append(ResultTrack(
